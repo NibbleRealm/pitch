@@ -3,13 +3,26 @@
 //! Quickly and accurately determine the pitch and volume of a sound sample.
 //!
 //! This crate uses a
-//! [Bitstream Autocorrelation Function (BCF)](http://www.cycfi.com/2018/03/fast-and-efficient-pitch-detection-bitstream-autocorrelation/)
+//! [Bitstream Autocorrelation Function (BCF)](http://www.cycfi.com/2018/03/fas\
+//! t-and-efficient-pitch-detection-bitstream-autocorrelation/)
 //! to determine the pitch of the sound sample.
+//!
+//! # How to use
+//! It is really quite simple.  Just write:
+//! ```
+//! let (hz, amplitude) = pitch::detect(&samples)
+//! ```
+//! `samples` is a fixed-size array of f32s.  I use 2,048 for the array length.
+//! The length of the array should be 2 times the period of the lowest note you
+//! want to pick up (because of math and some theories).  So 2,048 gives us
+//! notes up to 1,024 samples per period, which in 48,000Hz is about 47Hz
+//! (48,000Hz / 1,024 Samples).  For reference, the lowest sine wave that a
+//! human can hear is 20Hz (a little more than an octave lower).
 //!
 //! # Example
 //! Example code can be found in `test.rs`.  The audio files I used were me
 //! playing my trombone on notes A1, A2, A3, and A4, and generating sine, saw,
-//! and square waves with Audacity on the note A4 (making sure to set 48000hz
+//! and square waves with Audacity on the note A4 (making sure to set 48,000hz
 //! sample rate).  Here is my example output (Note: I didn't tune my trombone
 //! beforehand since this program is a tuner, and may give different results
 //! than other tuners):
