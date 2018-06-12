@@ -1,4 +1,4 @@
-## ["pitch"](http://plopgrizzly.com/audio) by [Plop Grizzly](http://plopgrizzly.com)
+## ["pitch"](http://plopgrizzly.com/audio#plopgrizzly) by [Plop Grizzly](http://plopgrizzly.com)
 Quickly and accurately determine the pitch and volume of a sound sample.
 
 This crate uses methods described
