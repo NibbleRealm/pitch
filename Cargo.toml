@@ -18,21 +18,14 @@ authors = [
 ]
 
 license = "MIT"
-documentation = "https://doc.plopgrizzly.com/pitch"
+documentation = "https://docs.rs/pitch"
 homepage = "http://plopgrizzly.com/audio"
 repository = "https://gitlab.com/plopgrizzly/audio/pitch"
 
 readme = "readme.md"
 description = "Quickly and accurately determine the pitch and volume of a sound sample."
-keywords = [
-	"bcf", "bacf", "acf", "auto-correlation", "detection"
-]
+keywords = ["bcf", "bacf", "acf", "auto-correlation", "detection"]
 categories = ["algorithms", "multimedia::audio"]
-
-exclude = [
-	"examples/*", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", ".gitignore",
-	"_config.yml", "ISSUE_TEMPLATE.md", "icon.png", "icon.ico"
-]
 
 [dependencies]
 
