@@ -1,9 +1,10 @@
 ## ["pitch"](http://plopgrizzly.com/audio#plopgrizzly) by [Plop Grizzly](http://plopgrizzly.com)
 Quickly and accurately determine the pitch and volume of a sound sample.
 
-This crate uses methods described
-[here](http://www.cycfi.com/2018/03/fast-and-efficient-pitch-detection-bitstream-autocorrelation/)
-to determine the pitch.
+This crate uses a
+[Bitstream Autocorrelation Function (BCF)
+](http://www.cycfi.com/2018/03/fast-and-efficient-pitch-detection-bitstream-autocorrelation/)
+invented by Joel de Guzman to determine the pitch of the sound sample.
 
 ## Features
 * Determine pitch of an audio wave using Bitstream Autocorrelation (BCF)

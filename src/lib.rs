@@ -3,9 +3,9 @@
 //! Quickly and accurately determine the pitch and volume of a sound sample.
 //!
 //! This crate uses a
-//! [Bitstream Autocorrelation Function (BCF)](http://www.cycfi.com/2018/03/fas\
-//! t-and-efficient-pitch-detection-bitstream-autocorrelation/)
-//! to determine the pitch of the sound sample.
+//! [Bitstream Autocorrelation Function (BCF)
+//! ](http://www.cycfi.com/2018/03/fast-and-efficient-pitch-detection-bitstream-autocorrelation/)
+//! invented by Joel de Guzman to determine the pitch of the sound sample.
 //!
 //! # How to use
 //! It is really quite simple.  Just write:
@@ -126,8 +126,7 @@ impl BitStream {
 	}
 }
 
-/// Do the BCF calculation on raw samples.  Returns `(hz, amplitude[0-1])`.
-pub fn detect(samples: &[f32]) -> (f32, f32) {
+fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	// Get The Amplitude (Volume).
 	let mut volume = 0.0f32;
 	for i in samples.iter() {
@@ -164,7 +163,7 @@ pub fn detect(samples: &[f32]) -> (f32, f32) {
 	let mut prev = 0.0f32;
 	let mut start_edge = samples.iter().enumerate();
 	let start_edge = loop {
-		let (i, start_edge2) = start_edge.next().unwrap();
+		let (i, start_edge2) = start_edge.next()?;
 		if *start_edge2 > 0.0 {
 			break (i as f32, start_edge2);
 		}
@@ -177,7 +176,7 @@ pub fn detect(samples: &[f32]) -> (f32, f32) {
 	// - Get the next edge
 	let mut next_edge = samples.iter().enumerate().skip(est_index - 1);
 	let next_edge = loop {
-		let (i, next_edge2) = next_edge.next().unwrap();
+		let (i, next_edge2) = next_edge.next()?;
 		if *next_edge2 > 0.0 {
 			break (i as f32, next_edge2);
 		}
@@ -189,6 +188,13 @@ pub fn detect(samples: &[f32]) -> (f32, f32) {
 
 	let n_samples: f32 = (next_edge.0 - start_edge.0) + (dx2 - dx1);
 
+	println!("{} {} {} {} {}", n_samples, next_edge.0, start_edge.0, dx2, dx1);
+
 	// The frequency
-	((SPS as f32) / n_samples, volume)
+	Some(((SPS as f32) / n_samples, volume))
+}
+
+/// Do the BCF calculation on raw samples.  Returns `(hz, amplitude[0-1])`.
+pub fn detect(samples: &[f32]) -> (f32, f32) {
+	bcf(samples).unwrap_or((0.0, 0.0))
 }

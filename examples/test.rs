@@ -15,6 +15,7 @@ const A4: &[u8] = include_bytes!("a4.raw");
 const SINE_A4: &[u8] = include_bytes!("sine.raw");
 const SAW_A4: &[u8] = include_bytes!("sawtooth.raw");
 const SQUARE_A4: &[u8] = include_bytes!("square.raw");
+const BAD: &[u8] = include_bytes!("bad.raw");
 
 fn hz_of_raw(data: &[u8]) -> (f32, f32) {
 	// Read Sound Wave Data Into `samples`
@@ -37,6 +38,7 @@ fn main() {
 	let sine_a4 = hz_of_raw(SINE_A4);
 	let saw_a4 = hz_of_raw(SAW_A4);
 	let square_a4 = hz_of_raw(SQUARE_A4);
+	let bad = hz_of_raw(BAD);
 
 	// Print out the pitch of different audio waveforms.
 	println!("A1: {} Hz, {} Vl", a1.0, a1.1);
@@ -46,4 +48,5 @@ fn main() {
 	println!("SINE_A4: {} Hz, {} Vl", sine_a4.0, sine_a4.1);
 	println!("SAW_A4: {} Hz, {} Vl", saw_a4.0, saw_a4.1);
 	println!("SQUARE_A4: {} Hz, {} Vl", square_a4.0, square_a4.1);
+	println!("BAD: {} Hz {}, Vl", bad.0, bad.1);
 }
