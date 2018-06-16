@@ -1,4 +1,4 @@
-// "pitch" - Licensed under the MIT LICENSE (see /LICENSE)
+// "pitch" - Licensed under the Boost Software License (see /LICENSE)
 
 //! Quickly and accurately determine the pitch and volume of a sound sample.
 //!
@@ -42,6 +42,8 @@ const SPS: u32 = 48_000; // Sample Hz
 const MAX_FREQ: f32 = 10_000.0; // Stupidly high note
 const MIN_PERIOD: f32 = (SPS as f32) / MAX_FREQ; // Minumum Period Samples
 
+const NBITS: usize = ::std::mem::size_of::<usize>() * 8;
+
 struct ZeroCross(bool);
 
 impl ZeroCross {
@@ -67,60 +69,49 @@ struct BitStream {
 
 impl BitStream {
 	fn new(size: usize) -> BitStream {
-		let nbits = ::std::mem::size_of::<usize>() * 8;
-
 		BitStream {
-			bits: vec![0usize; size/nbits],
+			bits: vec![0usize; size / NBITS],
 			len: size,
 		}
 	}
 
 	fn set(&mut self, i: usize, value: bool) {
-		let nbits = ::std::mem::size_of::<usize>() * 8;
-
-		let index = i / nbits;
-		let bitofs = i % nbits;
+		let index = i / NBITS;
+		let shift = i % NBITS;
 
 		self.bits[index] ^= (if value { ::std::usize::MAX } else { 0 }
-			^ self.bits[index]) & (1usize << bitofs);
+			^ self.bits[index]) & (1 << shift);
 	}
 
-	fn autocorrelate(&mut self, start_pos: usize, f: &mut FnMut(usize, u32)) {
-		let nbits = ::std::mem::size_of::<usize>() * 8;
+	fn get(&self, index: usize, shift: usize) -> usize {
+		let v = self.bits[index];
+		if shift > 0 {
+			v >> shift | self.bits[index + 1] << (NBITS - shift)
+		} else {
+			v
+		}
+	}
 
+	fn autocorrelate(&mut self, start_pos: usize, f: &mut FnMut(usize, u32))
+	{
 		let mid_array = (self.bits.len() / 2) - 1;
 		let mid_pos = self.len / 2;
-		let mut index = start_pos / nbits;
-		let mut shift = start_pos % nbits;
+		let mut index = start_pos / NBITS;
+		let mut shift = start_pos % NBITS;
 
 		// get autocorrelation values for the first half of the sample.
 		for pos in start_pos..mid_pos {
-			let mut p1 = 0;
-			let mut p2 = index;
 			let mut count = 0;
-
-			if shift == 0 {
-				for _i in 0..mid_array {
-					count += (self.bits[p1] ^ self.bits[p2])
-						.count_ones();
-					p1+=1; p2+=1;
-				}
-			} else {
-				let shift2 = nbits - shift;
-				for _i in 0..mid_array {
-					let mut v = self.bits[p2] >> shift;
-					p2+=1;
-					v |= self.bits[p2] << shift2;
-					count += (self.bits[p1] ^ v).count_ones();
-					p1+=1;
-				}
+			for i in 0..mid_array {
+				count += (self.get(i, 0)
+						^ self.get(i + index, shift))
+					 .count_ones();
 			}
 			shift += 1;
-			if shift == nbits {
+			if shift == NBITS {
 				shift = 0;
 				index += 1;
 			}
-
 			f(pos, count);
 		}
 	}
@@ -144,14 +135,10 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	}
 
 	// Binary Autocorrelation
-	let mut max_count = 0u32;
 	let mut min_count = ::std::u32::MAX;
 	let mut est_index = 0usize;
-	let mut corr = vec![0u32; samples.len() / 2];
 
 	bin.autocorrelate(MIN_PERIOD as usize, &mut |pos, count| {
-		corr[pos] = count;
-		max_count = max_count.max(count);
 		if count < min_count {
 			min_count = count;
 			est_index = pos;
@@ -161,11 +148,11 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	// Estimate the pitch:
 	// - Get the start edge
 	let mut prev = 0.0f32;
-	let mut start_edge = samples.iter().enumerate();
+	let mut esam = samples.iter().enumerate();
 	let start_edge = loop {
-		let (i, start_edge2) = start_edge.next()?;
+		let (i, start_edge2) = esam.next()?;
 		if *start_edge2 > 0.0 {
-			break (i as f32, start_edge2);
+			break (i, start_edge2);
 		}
 		prev = *start_edge2;
 	};
@@ -174,11 +161,11 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	let dx1 = -prev / dy;
 
 	// - Get the next edge
-	let mut next_edge = samples.iter().enumerate().skip(est_index - 1);
+	let mut nsam = esam.skip(est_index - start_edge.0 - 1);
 	let next_edge = loop {
-		let (i, next_edge2) = next_edge.next()?;
+		let (i, next_edge2) = nsam.next()?;
 		if *next_edge2 > 0.0 {
-			break (i as f32, next_edge2);
+			break (i, next_edge2);
 		}
 		prev = *next_edge2;
 	};
@@ -186,9 +173,9 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	dy = next_edge.1 - prev;
 	let dx2 = -prev / dy;
 
-	let n_samples: f32 = (next_edge.0 - start_edge.0) + (dx2 - dx1);
+	let n_samples: f32 = (next_edge.0 - start_edge.0) as f32 + (dx2 - dx1);
 
-	println!("{} {} {} {} {}", n_samples, next_edge.0, start_edge.0, dx2, dx1);
+	println!("{} {} {} {} {} {}", est_index, n_samples, next_edge.0, start_edge.0, dx2, dx1);
 
 	// The frequency
 	Some(((SPS as f32) / n_samples, volume))

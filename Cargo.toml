@@ -1,4 +1,4 @@
-# "pitch" - Licensed under the MIT LICENSE (see /LICENSE)
+# "pitch" - Licensed under the Boost Software License (see /LICENSE)
 #                             _        _
 #                            /@\——————/@\
 # .———  .                   |   o    o   |     .————      .            .
@@ -15,6 +15,7 @@ name = "pitch"
 version = "0.1.2"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>",
+	"Douglas P. Lau <doug.p.lau@gmail.com>"
 ]
 
 license = "BSL-1.0"
