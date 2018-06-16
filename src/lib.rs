@@ -68,21 +68,6 @@ struct BitStream {
 }
 
 impl BitStream {
-	fn new(size: usize) -> BitStream {
-		BitStream {
-			bits: vec![0usize; size / NBITS],
-			len: size,
-		}
-	}
-
-	fn set(&mut self, i: usize, value: bool) {
-		let index = i / NBITS;
-		let shift = i % NBITS;
-
-		self.bits[index] ^= (if value { ::std::usize::MAX } else { 0 }
-			^ self.bits[index]) & (1 << shift);
-	}
-
 	fn get(&self, index: usize, shift: usize) -> usize {
 		let v = self.bits[index];
 		if shift > 0 {
@@ -125,13 +110,27 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	}
 
 	// Convert Into a Bitstream of Zero-Crossings
-	let mut bin = BitStream::new(samples.len());
 	let mut zc = ZeroCross::new();
 	let t = volume * 0.00001;
+	let mut bin = BitStream {
+		bits: vec![],
+		len: samples.len(),
+	};
 
-	for i in 0..samples.len() {
-		let setv = zc.get(samples[i], t);
-		bin.set(i, setv);
+	let mut i = 0;
+	'a: loop {
+		let mut register = 0usize;
+		for shift in 0..NBITS {
+			let setv = zc.get(samples[i], t);
+			register ^= (if setv { ::std::usize::MAX } else { 0 }
+				^ register) & (1 << shift);
+			i += 1;
+			if i == samples.len() {
+				bin.bits.push(register);
+				break 'a;
+			}
+		}
+		bin.bits.push(register);
 	}
 
 	// Binary Autocorrelation
