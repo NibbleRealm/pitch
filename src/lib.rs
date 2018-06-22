@@ -68,6 +68,34 @@ struct BitStream {
 }
 
 impl BitStream {
+	fn new(samples: &[f32], threshold: f32) -> Self {
+		let mut zc = ZeroCross::new();
+		let mut bin = BitStream {
+			bits: Vec::with_capacity(samples.len() / NBITS),
+			len: samples.len(),
+		};
+
+		let mut i = 0;
+		'a: loop {
+			let mut register = 0usize;
+			for shift in 0..NBITS {
+				let setv = zc.get(samples[i], threshold);
+				if setv {
+					register ^= (::std::usize::MAX
+						^ register) & (1 << shift);
+				}
+				i += 1;
+				if i == samples.len() {
+					bin.bits.push(register);
+					break 'a;
+				}
+			}
+			bin.bits.push(register);
+		}
+
+		bin
+	}
+
 	fn get(&self, index: usize, shift: usize) -> usize {
 		let v = self.bits[index];
 		if shift > 0 {
@@ -77,8 +105,11 @@ impl BitStream {
 		}
 	}
 
-	fn autocorrelate(&mut self, start_pos: usize, f: &mut FnMut(usize, u32))
-	{
+	fn autocorrelate(&mut self) -> usize {
+		let start_pos = MIN_PERIOD as usize;
+		let mut min_count = ::std::u32::MAX;
+		let mut est_index = 0usize;
+
 		let mid_array = (self.bits.len() / 2) - 1;
 		let mid_pos = self.len / 2;
 		let mut index = start_pos / NBITS;
@@ -97,8 +128,14 @@ impl BitStream {
 				shift = 0;
 				index += 1;
 			}
-			f(pos, count);
+
+			if count < min_count {
+				min_count = count;
+				est_index = pos;
+			}
 		}
+
+		est_index
 	}
 }
 
@@ -110,39 +147,10 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	}
 
 	// Convert Into a Bitstream of Zero-Crossings
-	let mut zc = ZeroCross::new();
-	let t = volume * 0.00001;
-	let mut bin = BitStream {
-		bits: vec![],
-		len: samples.len(),
-	};
-
-	let mut i = 0;
-	'a: loop {
-		let mut register = 0usize;
-		for shift in 0..NBITS {
-			let setv = zc.get(samples[i], t);
-			register ^= (if setv { ::std::usize::MAX } else { 0 }
-				^ register) & (1 << shift);
-			i += 1;
-			if i == samples.len() {
-				bin.bits.push(register);
-				break 'a;
-			}
-		}
-		bin.bits.push(register);
-	}
+	let mut bin = BitStream::new(samples, volume * 0.00001);
 
 	// Binary Autocorrelation
-	let mut min_count = ::std::u32::MAX;
-	let mut est_index = 0usize;
-
-	bin.autocorrelate(MIN_PERIOD as usize, &mut |pos, count| {
-		if count < min_count {
-			min_count = count;
-			est_index = pos;
-		}
-	});
+	let est_index = bin.autocorrelate();
 
 	// Estimate the pitch:
 	// - Get the start edge

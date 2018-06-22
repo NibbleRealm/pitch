@@ -55,19 +55,19 @@ fn main() {
 	let bad8 = hz_of_raw(BAD8);
 
 	// Print out the pitch of different audio waveforms.
-	println!("A1: {} Hz, {} Vl", a1.0, a1.1);
-	println!("A2: {} Hz, {} Vl", a2.0, a2.1);
-	println!("A3: {} Hz, {} Vl", a3.0, a3.1);
-	println!("A4: {} Hz, {} Vl", a4.0, a4.1);
-	println!("SINE_A4: {} Hz, {} Vl", sine_a4.0, sine_a4.1);
-	println!("SAW_A4: {} Hz, {} Vl", saw_a4.0, saw_a4.1);
-	println!("SQUARE_A4: {} Hz, {} Vl", square_a4.0, square_a4.1);
-	println!("BAD: {} Hz {}, Vl", bad.0, bad.1);
-	println!("BAD2: {} Hz {}, Vl", bad2.0, bad2.1);
-	println!("BAD3: {} Hz {}, Vl", bad3.0, bad3.1);
-	println!("BAD4: {} Hz {}, Vl", bad4.0, bad4.1);
-	println!("BAD5: {} Hz {}, Vl", bad5.0, bad5.1);
-	println!("BAD6: {} Hz {}, Vl", bad6.0, bad6.1);
-	println!("BAD7: {} Hz {}, Vl", bad7.0, bad7.1);
-	println!("BAD8: {} Hz {}, Vl", bad8.0, bad8.1);
+	println!("A1(55hz): {} Hz, {} Vl", a1.0, a1.1);
+	println!("A2(110hz): {} Hz, {} Vl", a2.0, a2.1);
+	println!("A3(220hz): {} Hz, {} Vl", a3.0, a3.1);
+	println!("A4(440hz): {} Hz, {} Vl", a4.0, a4.1);
+	println!("SINE_A4(440hz): {} Hz, {} Vl", sine_a4.0, sine_a4.1);
+	println!("SAW_A4(440hz): {} Hz, {} Vl", saw_a4.0, saw_a4.1);
+	println!("SQUARE_A4(440hz): {} Hz, {} Vl", square_a4.0, square_a4.1);
+	println!("BAD(114.286hz): {} Hz {}, Vl", bad.0, bad.1);
+	println!("BAD2(114.286hz): {} Hz {}, Vl", bad2.0, bad2.1);
+	println!("BAD3(114.286hz): {} Hz {}, Vl", bad3.0, bad3.1);
+	println!("BAD4(114.286hz): {} Hz {}, Vl", bad4.0, bad4.1);
+	println!("BAD5(114.286hz): {} Hz {}, Vl", bad5.0, bad5.1);
+	println!("BAD6(114.286hz): {} Hz {}, Vl", bad6.0, bad6.1);
+	println!("BAD7(114.286hz): {} Hz {}, Vl", bad7.0, bad7.1);
+	println!("BAD8(114.286hz): {} Hz {}, Vl", bad8.0, bad8.1);
 }
