@@ -105,7 +105,7 @@ impl BitStream {
 		}
 	}
 
-	fn autocorrelate(&mut self) -> usize {
+	fn autocorrelate(&self) -> usize {
 		let start_pos = MIN_PERIOD as usize;
 		let mut min_count = ::std::u32::MAX;
 		let mut est_index = 0usize;
@@ -147,10 +147,12 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	}
 
 	// Convert Into a Bitstream of Zero-Crossings
-	let mut bin = BitStream::new(samples, volume * 0.00001);
+	let bin = BitStream::new(samples, volume * 0.00001);
 
 	// Binary Autocorrelation
 	let est_index = bin.autocorrelate();
+
+	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as f32) / (est_index as f32));
 
 	// Estimate the pitch:
 	// - Get the start edge
@@ -182,7 +184,8 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 
 	let n_samples: f32 = (next_edge.0 - start_edge.0) as f32 + (dx2 - dx1);
 
-	println!("{} {} {} {} {} {}", est_index, n_samples, next_edge.0, start_edge.0, dx2, dx1);
+	println!("Final (correction) Hz: {}", (SPS as f32) / n_samples);
+//	println!("{} {} {} {} {} {}", est_index, n_samples, next_edge.0, start_edge.0, dx2, dx1);
 
 	// The frequency
 	Some(((SPS as f32) / n_samples, volume))
