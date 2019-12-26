@@ -1,27 +1,17 @@
 # "pitch" - Licensed under the Boost Software License (see /LICENSE)
-#                             _        _
-#                            /@\——————/@\
-# .———  .                   |   o    o   |     .————      .            .
-# |   | |  .———   .———   .——.     []     .——.  |      .——    ———: ———: | .   .
-# |   | |  |   |  |   |  \   \   <##>   /   /  |      |   |    /    /  | |   |
-# |———  |  |   |  |   |   |   ¯        ¯   |   |   -- |   |   /    /   |  \ /
-# |     |  |   |  |———    |                |   |    | |   |  /    /    |   |
-# |     |   ———   |       |                |    ————  |   | :——— :———  |   |
-#                 |        \              /                              __/
-#                           ¯————————————¯
 
 [package]
 name = "pitch"
-version = "0.1.3"
+version = "0.2.0"
 authors = [
-	"Jeron A. Lau <jeron.lau@plopgrizzly.com>",
+	"Jeron Aldaron Lau <jeronlau@plopgrizzly.com>",
 	"Douglas P. Lau <doug.p.lau@gmail.com>"
 ]
 
 license = "BSL-1.0"
 documentation = "https://docs.rs/pitch"
-homepage = "http://plopgrizzly.com/audio"
-repository = "https://gitlab.com/plopgrizzly/audio/pitch"
+homepage = "https://lordaldaron.github.io/pitch"
+repository = "https://github.com/LordAldaron/pitch"
 
 readme = "readme.md"
 description = "Quickly and accurately determine the pitch and volume of a sound sample."
@@ -33,7 +23,6 @@ categories = ["algorithms", "multimedia::audio"]
 [dev-dependencies]
 byteorder = "1.2"
 criterion = "0.2"
-
 
 [[bench]]
 name = "detect"
