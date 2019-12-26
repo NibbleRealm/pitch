@@ -37,10 +37,12 @@
 //! SQUARE_A4: 434.3891 Hz, 0.80022585 Vl
 //! ```
 
+type SampleType = f64;
+
 // BCF constants:
 const SPS: u32 = 48_000; // Sample Hz
-const MAX_FREQ: f32 = 10_000.0; // Stupidly high note
-const MIN_PERIOD: f32 = (SPS as f32) / MAX_FREQ; // Minumum Period Samples
+const MAX_FREQ: SampleType = 10_000.0; // Stupidly high note
+const MIN_PERIOD: SampleType = (SPS as SampleType) / MAX_FREQ; // Minumum Period Samples
 
 const NBITS: usize = ::std::mem::size_of::<usize>() * 8;
 
@@ -51,7 +53,7 @@ impl ZeroCross {
 		ZeroCross(false)
 	}
 
-	fn get(&mut self, s: f32, t: f32) -> bool {
+	fn get(&mut self, s: SampleType, t: SampleType) -> bool {
 		if s < -t {
 			self.0 = false;
 		} else if s > t {
@@ -68,7 +70,7 @@ struct BitStream {
 }
 
 impl BitStream {
-	fn new(samples: &[f32], threshold: f32) -> Self {
+	fn new(samples: &[SampleType], threshold: SampleType) -> Self {
 		let mut zc = ZeroCross::new();
 		let mut bin = BitStream {
 			bits: Vec::with_capacity(samples.len() / NBITS),
@@ -139,9 +141,9 @@ impl BitStream {
 	}
 }
 
-fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
+fn bcf(samples: &[SampleType]) -> Option<(SampleType, SampleType)> {
 	// Get The Amplitude (Volume).
-	let mut volume = 0.0f32;
+	let mut volume: SampleType = 0.0;
 	for i in samples.iter() {
 		volume = volume.max(i.abs());
 	}
@@ -152,11 +154,11 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	// Binary Autocorrelation
 	let est_index = bin.autocorrelate();
 
-	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as f32) / (est_index as f32));
+	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
 
 	// Estimate the pitch:
 	// - Get the start edge
-	let mut prev = 0.0f32;
+	let mut prev = 0.0;
 	let mut esam = samples.iter().enumerate();
 	let start_edge = loop {
 		let (i, start_edge2) = esam.next()?;
@@ -182,16 +184,16 @@ fn bcf(samples: &[f32]) -> Option<(f32, f32)> {
 	dy = next_edge.1 - prev;
 	let dx2 = -prev / dy;
 
-	let n_samples: f32 = (next_edge.0 - start_edge.0) as f32 + (dx2 - dx1);
+	let n_samples: SampleType = (next_edge.0 - start_edge.0) as SampleType + (dx2 - dx1);
 
-	println!("Final (correction) Hz: {}", (SPS as f32) / n_samples);
+	println!("Final (correction) Hz: {}", (SPS as SampleType) / n_samples);
 //	println!("{} {} {} {} {} {}", est_index, n_samples, next_edge.0, start_edge.0, dx2, dx1);
 
 	// The frequency
-	Some(((SPS as f32) / n_samples, volume))
+	Some(((SPS as SampleType) / n_samples, volume))
 }
 
 /// Do the BCF calculation on raw samples.  Returns `(hz, amplitude[0-1])`.
-pub fn detect(samples: &[f32]) -> (f32, f32) {
+pub fn detect(samples: &[SampleType]) -> (SampleType, SampleType) {
 	bcf(samples).unwrap_or((0.0, 0.0))
 }
