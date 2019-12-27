@@ -154,7 +154,7 @@ fn bcf(samples: &[SampleType]) -> Option<(SampleType, SampleType)> {
 	// Binary Autocorrelation
 	let est_index = bin.autocorrelate();
 
-	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
+	// println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
 
     return Some(((SPS as SampleType) / (est_index as SampleType), volume));
 
