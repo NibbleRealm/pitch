@@ -156,6 +156,8 @@ fn bcf(samples: &[SampleType]) -> Option<(SampleType, SampleType)> {
 
 	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
 
+    return Some(((SPS as SampleType) / (est_index as SampleType), volume));
+
 	// Estimate the pitch:
 	// - Get the start edge
 	let mut prev = 0.0;
