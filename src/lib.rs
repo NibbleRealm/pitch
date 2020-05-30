@@ -46,19 +46,27 @@ const MIN_PERIOD: SampleType = (SPS as SampleType) / MAX_FREQ; // Minumum Period
 
 const NBITS: usize = ::std::mem::size_of::<usize>() * 8;
 
-struct ZeroCross(bool);
+struct ZeroCross(bool, SampleType);
 
 impl ZeroCross {
 	fn new() -> Self {
-		ZeroCross(false)
+		ZeroCross(false, 0.0)
 	}
 
 	fn get(&mut self, s: SampleType, t: SampleType) -> bool {
-		if s < -t {
-			self.0 = false;
-		} else if s > t {
-			self.0 = true;
-		}
+        if s > self.1 {
+            self.0 = true;
+        } else {
+            self.0 = false;
+        }
+
+        self.1 = s;
+
+//		if s < -t {
+//			self.0 = false;
+//		} else if s > t {
+//			self.0 = true;
+//		}
 
 		self.0
 	}
@@ -154,45 +162,9 @@ fn bcf(samples: &[SampleType]) -> Option<(SampleType, SampleType)> {
 	// Binary Autocorrelation
 	let est_index = bin.autocorrelate();
 
-	// println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
+	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
 
     return Some(((SPS as SampleType) / (est_index as SampleType), volume));
-
-	// Estimate the pitch:
-	// - Get the start edge
-	let mut prev = 0.0;
-	let mut esam = samples.iter().enumerate();
-	let start_edge = loop {
-		let (i, start_edge2) = esam.next()?;
-		if *start_edge2 > 0.0 {
-			break (i, start_edge2);
-		}
-		prev = *start_edge2;
-	};
-
-	let mut dy = start_edge.1 - prev;
-	let dx1 = -prev / dy;
-
-	// - Get the next edge
-	let mut nsam = esam.skip(est_index - start_edge.0 - 1);
-	let next_edge = loop {
-		let (i, next_edge2) = nsam.next()?;
-		if *next_edge2 > 0.0 {
-			break (i, next_edge2);
-		}
-		prev = *next_edge2;
-	};
-
-	dy = next_edge.1 - prev;
-	let dx2 = -prev / dy;
-
-	let n_samples: SampleType = (next_edge.0 - start_edge.0) as SampleType + (dx2 - dx1);
-
-	println!("Final (correction) Hz: {}", (SPS as SampleType) / n_samples);
-//	println!("{} {} {} {} {} {}", est_index, n_samples, next_edge.0, start_edge.0, dx2, dx1);
-
-	// The frequency
-	Some(((SPS as SampleType) / n_samples, volume))
 }
 
 /// Do the BCF calculation on raw samples.  Returns `(hz, amplitude[0-1])`.
