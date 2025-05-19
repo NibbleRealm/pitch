@@ -22,7 +22,7 @@ categories = ["algorithms", "multimedia::audio"]
 
 [dev-dependencies]
 byteorder = "1.2"
-criterion = "0.5"
+criterion = "0.6"
 
 [[bench]]
 name = "detect"
