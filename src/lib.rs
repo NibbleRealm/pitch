@@ -49,125 +49,114 @@ const NBITS: usize = ::std::mem::size_of::<usize>() * 8;
 struct ZeroCross(bool, SampleType);
 
 impl ZeroCross {
-	fn new() -> Self {
-		ZeroCross(false, 0.0)
-	}
+    fn new() -> Self {
+        ZeroCross(false, 0.0)
+    }
 
-	fn get(&mut self, s: SampleType, t: SampleType) -> bool {
-        if s > self.1 {
-            self.0 = true;
-        } else {
-            self.0 = false;
-        }
-
+    fn get(&mut self, s: SampleType) -> bool {
+        self.0 = s > self.1;
         self.1 = s;
-
-//		if s < -t {
-//			self.0 = false;
-//		} else if s > t {
-//			self.0 = true;
-//		}
-
-		self.0
-	}
+        self.0
+    }
 }
 
 struct BitStream {
-	bits: Vec<usize>,
-	len: usize,
+    bits: Vec<usize>,
+    len: usize,
 }
 
 impl BitStream {
-	fn new(samples: &[SampleType], threshold: SampleType) -> Self {
-		let mut zc = ZeroCross::new();
-		let mut bin = BitStream {
-			bits: Vec::with_capacity(samples.len() / NBITS),
-			len: samples.len(),
-		};
+    fn new(samples: &[SampleType]) -> Self {
+        let mut zc = ZeroCross::new();
+        let mut bin = BitStream {
+            bits: Vec::with_capacity(samples.len() / NBITS),
+            len: samples.len(),
+        };
 
-		let mut i = 0;
-		'a: loop {
-			let mut register = 0usize;
-			for shift in 0..NBITS {
-				let setv = zc.get(samples[i], threshold);
-				if setv {
-					register ^= (::std::usize::MAX
-						^ register) & (1 << shift);
-				}
-				i += 1;
-				if i == samples.len() {
-					bin.bits.push(register);
-					break 'a;
-				}
-			}
-			bin.bits.push(register);
-		}
+        let mut i = 0;
+        'a: loop {
+            let mut register = 0usize;
+            for shift in 0..NBITS {
+                let setv = zc.get(samples[i]);
+                if setv {
+                    register ^= (usize::MAX ^ register) & (1 << shift);
+                }
+                i += 1;
+                if i == samples.len() {
+                    bin.bits.push(register);
+                    break 'a;
+                }
+            }
+            bin.bits.push(register);
+        }
 
-		bin
-	}
+        bin
+    }
 
-	fn get(&self, index: usize, shift: usize) -> usize {
-		let v = self.bits[index];
-		if shift > 0 {
-			v >> shift | self.bits[index + 1] << (NBITS - shift)
-		} else {
-			v
-		}
-	}
+    fn get(&self, index: usize, shift: usize) -> usize {
+        let v = self.bits[index];
+        if shift > 0 {
+            v >> shift | self.bits[index + 1] << (NBITS - shift)
+        } else {
+            v
+        }
+    }
 
-	fn autocorrelate(&self) -> usize {
-		let start_pos = MIN_PERIOD as usize;
-		let mut min_count = ::std::u32::MAX;
-		let mut est_index = 0usize;
+    fn autocorrelate(&self) -> usize {
+        let start_pos = MIN_PERIOD as usize;
+        let mut min_count = u32::MAX;
+        let mut est_index = 0usize;
 
-		let mid_array = (self.bits.len() / 2) - 1;
-		let mid_pos = self.len / 2;
-		let mut index = start_pos / NBITS;
-		let mut shift = start_pos % NBITS;
+        let mid_array = (self.bits.len() / 2) - 1;
+        let mid_pos = self.len / 2;
+        let mut index = start_pos / NBITS;
+        let mut shift = start_pos % NBITS;
 
-		// get autocorrelation values for the first half of the sample.
-		for pos in start_pos..mid_pos {
-			let mut count = 0;
-			for i in 0..mid_array {
-				count += (self.get(i, 0)
-						^ self.get(i + index, shift))
-					 .count_ones();
-			}
-			shift += 1;
-			if shift == NBITS {
-				shift = 0;
-				index += 1;
-			}
+        // get autocorrelation values for the first half of the sample.
+        for pos in start_pos..mid_pos {
+            let mut count = 0;
+            for i in 0..mid_array {
+                count +=
+                    (self.get(i, 0) ^ self.get(i + index, shift)).count_ones();
+            }
+            shift += 1;
+            if shift == NBITS {
+                shift = 0;
+                index += 1;
+            }
 
-			if count < min_count {
-				min_count = count;
-				est_index = pos;
-			}
-		}
+            if count < min_count {
+                min_count = count;
+                est_index = pos;
+            }
+        }
 
-		est_index
-	}
+        est_index
+    }
 }
 
 fn bcf(samples: &[SampleType]) -> Option<(SampleType, SampleType)> {
-	// Get The Amplitude (Volume).
-	let mut volume: SampleType = 0.0;
-	for i in samples.iter() {
-		volume = volume.max(i.abs());
-	}
+    // Get The Amplitude (Volume).
+    let mut volume: SampleType = 0.0;
+    for i in samples.iter() {
+        volume = volume.max(i.abs());
+    }
 
-	// Convert Into a Bitstream of Zero-Crossings
-	let bin = BitStream::new(samples, volume * 0.00001);
+    // Convert Into a Bitstream of Zero-Crossings
+    let bin = BitStream::new(samples);
 
-	// Binary Autocorrelation
-	let est_index = bin.autocorrelate();
+    // Binary Autocorrelation
+    let est_index = bin.autocorrelate();
 
-	println!("Zero-Crossing Autocorrelation Hz: {}", (SPS as SampleType) / (est_index as SampleType));
+    println!(
+        "Zero-Crossing Autocorrelation Hz: {}",
+        (SPS as SampleType) / (est_index as SampleType)
+    );
 
-    return Some(((SPS as SampleType) / (est_index as SampleType), volume));
+    Some(((SPS as SampleType) / (est_index as SampleType), volume))
 }
 
 /// Do the BCF calculation on raw samples.  Returns `(hz, amplitude[0-1])`.
 pub fn detect(samples: &[SampleType]) -> (SampleType, SampleType) {
-	bcf(samples).unwrap_or((0.0, 0.0))
+    bcf(samples).unwrap_or((0.0, 0.0))
 }

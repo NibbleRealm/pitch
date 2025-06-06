@@ -1,19 +1,11 @@
-# "pitch" - Licensed under the Boost Software License (see /LICENSE)
-
 [package]
 name = "pitch"
 version = "0.2.0"
-authors = [
-	"Jeron Aldaron Lau <jeronlau@plopgrizzly.com>",
-	"Douglas P. Lau <doug.p.lau@gmail.com>"
-]
-
 license = "BSL-1.0"
 documentation = "https://docs.rs/pitch"
 homepage = "https://lordaldaron.github.io/pitch"
-repository = "https://github.com/LordAldaron/pitch"
-
-readme = "readme.md"
+repository = "https://github.com/NibbleRealm/pitch"
+readme = "README.md"
 description = "Quickly and accurately determine the pitch and volume of a sound sample."
 keywords = ["bcf", "bacf", "acf", "auto-correlation", "detection"]
 categories = ["algorithms", "multimedia::audio"]
@@ -21,8 +13,8 @@ categories = ["algorithms", "multimedia::audio"]
 [dependencies]
 
 [dev-dependencies]
-byteorder = "1.2"
-criterion = "0.6"
+byteorder = "1.5.0"
+criterion = "0.6.0"
 
 [[bench]]
 name = "detect"
