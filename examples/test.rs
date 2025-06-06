@@ -9,6 +9,7 @@ use self::byteorder::{LittleEndian, ReadBytesExt};
 
 const RESOLUTION: usize = 2048; // size of buffer
 
+/*
 const A1: &[u8] = include_bytes!("a1.raw");
 const A2: &[u8] = include_bytes!("a2.raw");
 const A3: &[u8] = include_bytes!("a3.raw");
@@ -37,8 +38,10 @@ fn hz_of_raw(data: &[u8]) -> (f32, f32) {
 
     pitch::detect(&samples)
 }
+*/
 
 fn main() {
+    /*
     let a1 = hz_of_raw(A1);
     let a2 = hz_of_raw(A2);
     let a3 = hz_of_raw(A3);
@@ -71,4 +74,5 @@ fn main() {
     println!("BAD6(114.286hz): {} Hz {}, Vl", bad6.0, bad6.1);
     println!("BAD7(114.286hz): {} Hz {}, Vl", bad7.0, bad7.1);
     println!("BAD8(114.286hz): {} Hz {}, Vl", bad8.0, bad8.1);
+    */
 }

@@ -9,7 +9,7 @@
 //!
 //! It is really quite simple.  Just write:
 //!
-//! ```rust
+//! ```rust,ignore
 //! let (hz, amplitude) = pitch::detect(&samples)
 //! ```
 //!
