@@ -1,5 +1,3 @@
-// "pitch" - Licensed under the Boost Software License (see /LICENSE)
-
 //! Quickly and accurately determine the pitch and volume of a sound sample.
 //!
 //! This crate uses a
@@ -8,10 +6,13 @@
 //! invented by Joel de Guzman to determine the pitch of the sound sample.
 //!
 //! # How to use
+//!
 //! It is really quite simple.  Just write:
-//! ```
+//!
+//! ```rust
 //! let (hz, amplitude) = pitch::detect(&samples)
 //! ```
+//!
 //! `samples` is a fixed-size array of f32s.  I use 2,048 for the array length.
 //! The length of the array should be 2 times the period of the lowest note you
 //! want to pick up (because of math and some theories).  So 2,048 gives us
@@ -20,6 +21,7 @@
 //! human can hear is 20Hz (a little more than an octave lower).
 //!
 //! # Example
+//!
 //! Example code can be found in `test.rs`.  The audio files I used were me
 //! playing my trombone on notes A1, A2, A3, and A4, and generating sine, saw,
 //! and square waves with Audacity on the note A4 (making sure to set 48,000hz
@@ -37,6 +39,12 @@
 //! SQUARE_A4: 434.3891 Hz, 0.80022585 Vl
 //! ```
 
+#![no_std]
+
+extern crate alloc;
+
+use alloc::vec::Vec;
+
 type SampleType = f64;
 
 // BCF constants:
@@ -44,7 +52,7 @@ const SPS: u32 = 48_000; // Sample Hz
 const MAX_FREQ: SampleType = 10_000.0; // Stupidly high note
 const MIN_PERIOD: SampleType = (SPS as SampleType) / MAX_FREQ; // Minumum Period Samples
 
-const NBITS: usize = ::std::mem::size_of::<usize>() * 8;
+const NBITS: usize = core::mem::size_of::<usize>() * 8;
 
 struct ZeroCross(bool, SampleType);
 
@@ -115,11 +123,14 @@ impl BitStream {
         // get autocorrelation values for the first half of the sample.
         for pos in start_pos..mid_pos {
             let mut count = 0;
+
             for i in 0..mid_array {
                 count +=
                     (self.get(i, 0) ^ self.get(i + index, shift)).count_ones();
             }
+
             shift += 1;
+
             if shift == NBITS {
                 shift = 0;
                 index += 1;
@@ -147,11 +158,6 @@ fn bcf(samples: &[SampleType]) -> Option<(SampleType, SampleType)> {
 
     // Binary Autocorrelation
     let est_index = bin.autocorrelate();
-
-    println!(
-        "Zero-Crossing Autocorrelation Hz: {}",
-        (SPS as SampleType) / (est_index as SampleType)
-    );
 
     Some(((SPS as SampleType) / (est_index as SampleType), volume))
 }
