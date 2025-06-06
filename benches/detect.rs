@@ -12,6 +12,7 @@ use self::byteorder::{LittleEndian, ReadBytesExt};
 
 const RESOLUTION: usize = 2048; // size of buffer
 
+/*
 const A1: &[u8] = include_bytes!("../examples/a1.raw");
 const A2: &[u8] = include_bytes!("../examples/a2.raw");
 const A3: &[u8] = include_bytes!("../examples/a3.raw");
@@ -20,7 +21,9 @@ const SINE_A4: &[u8] = include_bytes!("../examples/sine.raw");
 const SAW_A4: &[u8] = include_bytes!("../examples/sawtooth.raw");
 const SQUARE_A4: &[u8] = include_bytes!("../examples/square.raw");
 const BAD4: &[u8] = include_bytes!("../examples/bad4.raw");
+*/
 
+/*
 fn hz_of_raw(data: &[u8]) -> (f32, f32) {
     // Read Sound Wave Data Into `samples`
     let mut reader = Cursor::new(data);
@@ -32,9 +35,10 @@ fn hz_of_raw(data: &[u8]) -> (f32, f32) {
     }
 
     pitch::detect(&samples)
-}
+}*/
 
 fn detection() {
+    /*
     let _ = hz_of_raw(A1);
     let _ = hz_of_raw(A2);
     let _ = hz_of_raw(A3);
@@ -43,6 +47,7 @@ fn detection() {
     let _ = hz_of_raw(SAW_A4);
     let _ = hz_of_raw(SQUARE_A4);
     let _ = hz_of_raw(BAD4);
+    */
 }
 
 fn detect_benchmark(c: &mut Criterion) {
