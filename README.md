@@ -1,8 +1,8 @@
 ## Pitch
 
-[![tests](https://github.com/NibbleRealm/pitch/actions/workflows/ci.yml/badge.svg)](https://github.com/AldaronLau/p-chan/actions/workflows/ci.yml)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/AldaronLau/p-chan)](https://github.com/NibbleRealm/pitch)
-[![GitHub contributors](https://img.shields.io/github/contributors/AldaronLau/p-chan)](https://github.com/NibbleRealm/pitch/graphs/contributors)  
+[![tests](https://github.com/NibbleRealm/pitch/actions/workflows/ci.yml/badge.svg)](https://github.com/NibbleRealm/pitch/actions/workflows/ci.yml)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/NibbleRealm/pitch)](https://github.com/NibbleRealm/pitch)
+[![GitHub contributors](https://img.shields.io/github/contributors/NibbleRealm/pitch)](https://github.com/NibbleRealm/pitch/graphs/contributors)  
 [![Crates.io](https://img.shields.io/crates/v/p-chan)](https://crates.io/crates/pitch)
 [![Crates.io](https://img.shields.io/crates/d/p-chan)](https://crates.io/crates/pitch)
 [![Crates.io (recent)](https://img.shields.io/crates/dr/p-chan)](https://crates.io/crates/pitch)  
