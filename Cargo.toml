@@ -19,7 +19,7 @@ categories = [
 
 [dev-dependencies]
 byteorder = "1.5.0"
-criterion = "0.7.0"
+criterion = "0.8.0"
 
 [[bench]]
 name = "detect"
